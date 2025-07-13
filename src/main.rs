@@ -1,16 +1,6 @@
-use bevy::{
-    prelude::*, render::render_resource::{AsBindGroup, ShaderRef}, sprite::{Material2d, Material2dPlugin}
-};
-
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-struct CircleMaskMaterial {
-}
-
-impl Material2d for CircleMaskMaterial {
-    fn fragment_shader() -> ShaderRef {
-        "shaders/circle_mask.wgsl".into()
-    }
-}
+use bevy::{prelude::*, sprite::Material2dPlugin};
+mod mymask;
+use mymask::MyMaskMaterial;
 
 fn main() {
     App::new()
@@ -19,7 +9,7 @@ fn main() {
                 watch_for_changes_override: Some(true),
                 ..default()
             }),
-            Material2dPlugin::<CircleMaskMaterial>::default(),
+            Material2dPlugin::<MyMaskMaterial>::default(),
         ))
         .add_systems(Startup, setup)
         .run();
@@ -27,15 +17,24 @@ fn main() {
 
 fn setup(
     mut commands: Commands,
-    mut  meshs: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<CircleMaskMaterial>>,
+    mut materials: ResMut<Assets<MyMaskMaterial>>,
+    asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
 ) {
     commands.spawn(Camera2d::default());
 
-    let mesh_handle = meshs.add(Rectangle::from_size(Vec2::splat(200.0)));
+    let main_tex = asset_server.load("images/main.png");
+    let mask_tex = asset_server.load("images/mask.png");
+
+    let material = materials.add(MyMaskMaterial {
+        main_texture: main_tex,
+        mask_texture: mask_tex,
+    });
+
+    let mesh_handle = meshes.add(Rectangle::from_size(Vec2::splat(200.0)));
     commands.spawn((
         Mesh2d(mesh_handle),
-        MeshMaterial2d(materials.add(CircleMaskMaterial{})), // radius is set to 100.0
+        MeshMaterial2d(material),
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 }
