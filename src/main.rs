@@ -1,18 +1,22 @@
-use bevy::{prelude::*, sprite::Material2dPlugin};
 mod mask_2d;
+mod scratch_card;
+
+use bevy::{asset::RenderAssetUsages, image::ImageSampler, prelude::*, render::render_resource::{Extent3d, TextureAspect, TextureDimension, TextureFormat, TextureUsages}, sprite::Material2dPlugin};
 use mask_2d::Mask2DMaterial;
 
 fn main() {
-    App::new()
-        .add_plugins((
-            DefaultPlugins.set(AssetPlugin {
-                watch_for_changes_override: Some(true),
-                ..default()
-            }),
-            Material2dPlugin::<Mask2DMaterial>::default(),
-        ))
-        .add_systems(Startup, setup)
-        .run();
+    // App::new()
+    //     .add_plugins((
+    //         DefaultPlugins.set(AssetPlugin {
+    //             watch_for_changes_override: Some(true),
+    //             ..default()
+    //         }),
+    //         Material2dPlugin::<Mask2DMaterial>::default(),
+    //     ))
+    //     .add_systems(Startup, setup)
+    //     .run();
+
+    scratch_card::run();
 }
 
 fn setup(
@@ -38,3 +42,5 @@ fn setup(
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
 }
+
+
