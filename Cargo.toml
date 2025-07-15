@@ -17,3 +17,13 @@ name = "Mask 2D Example"
 description = "An example demonstrating the use of 2D masks in Bevy."
 category = "2D Rendering"
 wasm = true
+
+[[example]]
+name = "oklab_animate_shader"
+path = "examples/oklab_animate_shader.rs"
+
+[package.metadata.example.oklab_animate_shader]
+name = "Oklab Animate Shader Example"
+description = "An example demonstrating the use of Oklab color space in shader animations."
+category = "Shader Animation"
+wasm = true
