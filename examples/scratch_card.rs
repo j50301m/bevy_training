@@ -1,9 +1,9 @@
 use bevy::{
-    asset::RenderAssetUsages, 
-    image::ImageSampler, 
-    prelude::*, 
-    render::render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDimension, TextureFormat, TextureUsages}, 
-    sprite::{AlphaMode2d, Material2d, Material2dPlugin}, 
+    asset::RenderAssetUsages,
+    image::ImageSampler,
+    prelude::*,
+    render::render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDimension, TextureFormat, TextureUsages},
+    sprite::{AlphaMode2d, Material2d, Material2dPlugin},
     window::PrimaryWindow,
 };
 
@@ -34,7 +34,7 @@ impl Material2d for ScratchCardMaterial {
     // }
 }
 
-pub fn run() {
+pub fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest())) // 保持紋理像素感
         .add_plugins(Material2dPlugin::<ScratchCardMaterial>::default())
@@ -171,7 +171,6 @@ fn paint_mask_with_mouse(
                     }
                 }
             }
-            
             // 重要：通知 Bevy 纹理已经改变
             if changed {
                 println!("Texture updated! Changed pixels in mask.");

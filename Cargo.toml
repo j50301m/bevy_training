@@ -3,5 +3,17 @@ name = "mask_2d"
 version = "0.1.0"
 edition = "2024"
 
+
 [dependencies]
 bevy = "0.16.1"
+
+
+[[example]]
+name = "mask_2d"
+path = "examples/mask_2d.rs"
+
+[package.metadata.example.mask_2d]
+name = "Mask 2D Example"
+description = "An example demonstrating the use of 2D masks in Bevy."
+category = "2D Rendering"
+wasm = true
