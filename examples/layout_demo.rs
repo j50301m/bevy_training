@@ -8,40 +8,40 @@ fn main() {
 }
 
 fn setup_layout_demo(mut commands: Commands) {
-    // 添加相机
+    // Add camera
     commands.spawn(Camera2d);
 
-    // 创建根容器 - 使用 Flexbox 布局
+    // Create root container - using Flexbox layout
     commands.spawn((
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),
-            flex_direction: FlexDirection::Column, // 垂直排列
+            flex_direction: FlexDirection::Column, // Vertical layout
             justify_content: JustifyContent::SpaceAround,
             align_items: AlignItems::Center,
             ..default()
         },
         BackgroundColor(Color::srgb(0.1, 0.1, 0.1)),
     )).with_children(|parent| {
-        // 示例1: Relative 定位的元素们 (正常布局流)
+        // Example 1: Relative positioned elements (normal layout flow)
         parent.spawn((
             Node {
                 width: Val::Px(300.0),
                 height: Val::Px(100.0),
-                flex_direction: FlexDirection::Row, // 水平排列
+                flex_direction: FlexDirection::Row, // Horizontal layout
                 justify_content: JustifyContent::SpaceEvenly,
                 align_items: AlignItems::Center,
                 ..default()
             },
             BackgroundColor(Color::srgb(0.2, 0.2, 0.4)),
         )).with_children(|container| {
-            // 这些按钮会按照布局流自动排列
+            // These buttons will be automatically arranged according to layout flow
             for i in 1..=3 {
                 container.spawn((
                     Node {
                         width: Val::Px(80.0),
                         height: Val::Px(40.0),
-                        position_type: PositionType::Relative, // 参与布局流
+                        position_type: PositionType::Relative, // Participate in layout flow
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..default()
@@ -49,7 +49,7 @@ fn setup_layout_demo(mut commands: Commands) {
                     BackgroundColor(Color::srgb(0.3, 0.5, 0.3)),
                 )).with_children(|button| {
                     button.spawn((
-                        Text::new(format!("按钮{}", i)),
+                        Text::new(format!("Button{}", i)),
                         TextFont {
                             font_size: 16.0,
                             ..default()
@@ -60,7 +60,7 @@ fn setup_layout_demo(mut commands: Commands) {
             }
         });
 
-        // 示例2: 包含 Absolute 定位元素的容器
+        // Example 2: Container with Absolute positioned elements
         parent.spawn((
             Node {
                 width: Val::Px(300.0),
@@ -70,9 +70,9 @@ fn setup_layout_demo(mut commands: Commands) {
             },
             BackgroundColor(Color::srgb(0.4, 0.2, 0.2)),
         )).with_children(|container| {
-            // 正常布局流中的文字
+            // Normal text in layout flow
             container.spawn((
-                Text::new("这是容器中的正常文字"),
+                Text::new("This is normal text in the container"),
                 TextFont {
                     font_size: 16.0,
                     ..default()
@@ -85,12 +85,12 @@ fn setup_layout_demo(mut commands: Commands) {
                 },
             ));
 
-            // 绝对定位的覆盖层 - 脱离布局流
+            // Absolutely positioned overlay - outside of layout flow
             container.spawn((
                 Node {
                     width: Val::Px(60.0),
                     height: Val::Px(30.0),
-                    position_type: PositionType::Absolute, // 脱离布局流
+                    position_type: PositionType::Absolute, // Outside of layout flow
                     top: Val::Px(5.0),
                     right: Val::Px(5.0),
                     justify_content: JustifyContent::Center,
@@ -100,7 +100,7 @@ fn setup_layout_demo(mut commands: Commands) {
                 BackgroundColor(Color::srgb(0.8, 0.2, 0.2)),
             )).with_children(|overlay| {
                 overlay.spawn((
-                    Text::new("覆盖"),
+                    Text::new("Overlay"),
                     TextFont {
                         font_size: 12.0,
                         ..default()
@@ -110,9 +110,9 @@ fn setup_layout_demo(mut commands: Commands) {
             });
         });
 
-        // 示例3: 说明文字
+        // Example 3: Description text
         parent.spawn((
-            Text::new("上方红色容器中的\"覆盖\"按钮使用了绝对定位\n它脱离了布局流，不会影响其他元素的位置"),
+            Text::new("The \"Overlay\" button in the red container above uses absolute positioning\nIt is outside the layout flow and doesn't affect other elements' positions"),
             TextFont {
                 font_size: 14.0,
                 ..default()
