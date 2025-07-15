@@ -1,13 +1,24 @@
-use bevy::{ prelude::*, render::render_resource::{AsBindGroup, ShaderRef}};
-
+use bevy::{
+    prelude::*,
+    render::render_resource::{AsBindGroup, ShaderRef, ShaderType},
+};
 
 const SHADER_PATH: &str = "shaders/oklab_animate_shader.wgsl";
 
+#[derive(Clone, Copy, ShaderType, Debug, Resource)]
+struct Params {
+    phase: f32,
+    speed: f32,
+    _pad: Vec2, // 16‑byte alignment
+}
 
-#[derive(Asset,TypePath, AsBindGroup, Debug, Clone)]
-struct CustomMaterial{
+#[derive(Component)]
+struct SpeedUI;
+
+#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+struct CustomMaterial {
     #[uniform(0)]
-    pub speed: f32,
+    pub params: Params,
 }
 
 impl Material for CustomMaterial {
@@ -20,23 +31,31 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(MaterialPlugin::<CustomMaterial>::default())
+        .insert_resource(Params {
+            phase: 0.0,
+            speed: 1.0,
+            _pad: Vec2::ZERO,
+        })
         .add_systems(Startup, setup)
-        .add_systems(Update, change_speed)
+        .add_systems(Update, (handle_keys, accumulate_phase))
+        .add_systems(Update, update_ui)
         .run();
 }
-
 
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
 ) {
-
     // Spawn a simple cube with the custom material
     commands.spawn((
         Mesh3d(meshes.add(Cuboid::default())),
         MeshMaterial3d(materials.add(CustomMaterial {
-            speed: 1.0,
+            params: Params {
+                phase: 0.0,
+                speed: 1.0,
+                _pad: Vec2::ZERO,
+            },
         })),
         Transform::from_xyz(0.0, 0.0, 0.0),
     ));
@@ -44,34 +63,83 @@ fn setup(
     // Add a camera
     commands.spawn((
         Camera3d::default(),
-        Transform::from_xyz(-2.0, 4.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y)
+        Transform::from_xyz(-2.0, 4.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
     ));
 
+    // Add a user interface to display instructions
+    commands.spawn((
+        Text::new("Use Arrow Up/Down to adjust speed, R to reset."),
+        TextFont::default(),
+        Node {
+            position_type: PositionType::Absolute,
+            top: Val::Px(10.0),
+            left: Val::Px(10.0),
+            ..default()
+        },
+    ));
+
+    commands.spawn((
+        SpeedUI,
+        Text::new("Speed:"),
+        TextFont::default(),
+        Node {
+            position_type: PositionType::Absolute,
+            top: Val::Px(30.0),
+            left: Val::Px(10.0),
+            ..default()
+        },
+    ));
 }
 
-fn change_speed(
+fn handle_keys(
     input: Res<ButtonInput<KeyCode>>,
+    mut params: ResMut<Params>,
     mut materials: ResMut<Assets<CustomMaterial>>,
 ) {
     if input.just_pressed(KeyCode::ArrowUp) {
-        // Increase speed
-        for (_, material) in materials.iter_mut() {
-            material.speed += 0.1;
-            material.speed = material.speed.min(5.0); // Max limit
-            println!("Speed increased to: {:.1}", material.speed);
-        }
+        params.speed = (params.speed + 0.1).min(5.0);
     } else if input.just_pressed(KeyCode::ArrowDown) {
-        // Decrease speed
-        for (_, material) in materials.iter_mut() {
-            material.speed -= 0.1;
-            material.speed = material.speed.max(0.1); // Min limit
-            println!("Speed decreased to: {:.1}", material.speed);
-        }
+        params.speed = (params.speed - 0.1).max(0.1);
     } else if input.just_pressed(KeyCode::KeyR) {
-        // Reset
-        for (_, material) in materials.iter_mut() {
-            material.speed = 1.0;
-            println!("Speed reset to: 1.0");
+        params.speed = 1.0;
+    }
+
+    for (_, mat) in materials.iter_mut() {
+        let mut speed = mat.params.speed;
+        if input.just_pressed(KeyCode::ArrowUp) {
+            speed += 0.1;
+        } else if input.just_pressed(KeyCode::ArrowDown) {
+            speed -= 0.1;
+        }
+        mat.params.speed = speed.clamp(0.1, 5.0);
+    }
+}
+
+fn accumulate_phase(
+    mut params: ResMut<Params>,
+    time: Res<Time>,
+    mut materials: ResMut<Assets<CustomMaterial>>,
+) {
+    let dt = time.delta_secs();
+
+    // Accumulate the phase based on the time delta
+    params.phase += dt * params.speed;
+
+    // Ensure the phase stays within [0, 2π]
+    for (_, mat) in materials.iter_mut() {
+        mat.params.phase += dt * mat.params.speed;
+
+        // Ensure the phase stays within [0, 2π]
+        if mat.params.phase > std::f32::consts::TAU {
+            mat.params.phase -= std::f32::consts::TAU;
         }
     }
+}
+
+fn update_ui(
+    parms: Res<Params>,
+    ui_root: Single<Entity, (With<Text>, With<SpeedUI>)>,
+    mut writer: TextUiWriter,
+) {
+    *writer.text(*ui_root, 0) = format!("Speed: {:.1}, Phase: {:.2}", parms.speed, parms.phase);
 }

@@ -1,6 +1,14 @@
 #import bevy_pbr::mesh_view_bindings::globals
 #import bevy_pbr::forward_io::VertexOutput
 
+struct Params {
+    phase: f32,
+    speed: f32,
+    _pad: vec2<f32>, // padding to align to 16 bytes
+}
+
+@group(2) @binding(0) var<uniform> material: Params;
+
 fn oklab_to_linear_srgb(c: vec3<f32>) -> vec3<f32> {
     let L = c.x;
     let a = c.y;
@@ -21,12 +29,12 @@ fn oklab_to_linear_srgb(c: vec3<f32>) -> vec3<f32> {
     );
 }
 
-@group(2) @binding(0) var<uniform> speed: f32;
+
 
 @fragment
 fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
-    let t_1 = sin(globals.time) * 0.5 + 0.5;
-    let t_2 = cos(globals.time);
+    let t_1 = sin(material.phase) * 0.5 + 0.5;
+    let t_2 = cos(material.phase);
 
     let distance_to_center = distance(in.uv, vec2<f32>(0.5)) * 1.4;
 

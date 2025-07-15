@@ -25,7 +25,6 @@ impl Material2d for Mask2DMaterial {
     }
 }
 
-
 fn main() {
     App::new()
         .add_plugins((
@@ -38,7 +37,6 @@ fn main() {
         .add_systems(Startup, setup)
         .run();
 }
-
 
 fn setup(
     mut commands: Commands,

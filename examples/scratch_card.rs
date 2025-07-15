@@ -2,7 +2,9 @@ use bevy::{
     asset::RenderAssetUsages,
     image::ImageSampler,
     prelude::*,
-    render::render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDimension, TextureFormat, TextureUsages},
+    render::render_resource::{
+        AsBindGroup, Extent3d, ShaderRef, TextureDimension, TextureFormat, TextureUsages,
+    },
     sprite::{AlphaMode2d, Material2d, Material2dPlugin},
     window::PrimaryWindow,
 };
@@ -52,7 +54,7 @@ fn setup(
 ) {
     // -- 1. 載入資源
     let reveal = asset_server.load("images/prize.png");
-    let star   = asset_server.load("images/star_pattern.png");
+    let star = asset_server.load("images/star_pattern.png");
     let mask_handle = images.add(empty_mask_image());
 
     // -- 2. 建立 Material
@@ -74,36 +76,37 @@ fn setup(
     commands.insert_resource(MaskHandle(mask_handle));
 }
 
-
-
 /// 產生 512×512 的全黑遮罩
 fn empty_mask_image() -> Image {
-    let size = Extent3d { width: 512, height: 512, depth_or_array_layers: 1 };
-    
+    let size = Extent3d {
+        width: 512,
+        height: 512,
+        depth_or_array_layers: 1,
+    };
+
     // 創建簡單的測試圖案：左上角白色，其他黑色
     let mut data = vec![0u8; 512 * 512];
     for y in 0..256 {
-        for x in 0..256 { 
+        for x in 0..256 {
             let idx = y * 512 + x;
             data[idx] = 255; // 左上角設為白色
         }
     }
-    
+
     let mut img = Image::new(
-        size, 
-        TextureDimension::D2, 
+        size,
+        TextureDimension::D2,
         data,
         TextureFormat::R8Unorm,
-        RenderAssetUsages::RENDER_WORLD | RenderAssetUsages::MAIN_WORLD
+        RenderAssetUsages::RENDER_WORLD | RenderAssetUsages::MAIN_WORLD,
     );
-    
+
     // 允許 CPU → GPU 複製
     img.texture_descriptor.usage = TextureUsages::COPY_DST | TextureUsages::TEXTURE_BINDING;
     // 不要預設 linear filter，保持硬邊
     img.sampler = ImageSampler::nearest();
     img
 }
-
 
 /// 資源：遮罩的 Handle
 #[derive(Resource)]
@@ -120,33 +123,35 @@ fn paint_mask_with_mouse(
     if !buttons.pressed(MouseButton::Left) {
         return;
     }
-    
+
     // 获取窗口
     let Ok(window) = windows.get_single() else {
         return;
     };
-    
+
     // 获取相机
     let Ok((camera, cam_tf)) = camera_q.get_single() else {
         return;
     };
-    
+
     // 获取鼠标位置
     let Some(cursor_pos) = window.cursor_position() else {
         return;
     };
-    
+
     println!("Cursor position: {:?}", cursor_pos);
 
     // 1. 將螢幕座標 → 世界座標 → UV(0~1)
     if let Ok(world) = camera.viewport_to_world(cam_tf, cursor_pos) {
         let pos = world.origin.truncate();
-        let uv  = (pos + Vec2::splat(256.0)) / 512.0; // quad 是 512x512 且居中
-        if uv.x.is_nan() || uv.y.is_nan() { return; }
+        let uv = (pos + Vec2::splat(256.0)) / 512.0; // quad 是 512x512 且居中
+        if uv.x.is_nan() || uv.y.is_nan() {
+            return;
+        }
 
         // 2. 映射到像素
         if let Some(img) = images.get_mut(&mask_handle.0) {
-            let w = img.texture_descriptor.size.width  as i32;
+            let w = img.texture_descriptor.size.width as i32;
             let h = img.texture_descriptor.size.height as i32;
             let px = (uv.x * w as f32) as i32;
             let py = ((1.0 - uv.y) * h as f32) as i32; // flip Y
@@ -159,7 +164,9 @@ fn paint_mask_with_mouse(
             let mut changed = false;
             for dy in -radius..=radius {
                 for dx in -radius..=radius {
-                    if dx*dx + dy*dy > radius*radius { continue; }
+                    if dx * dx + dy * dy > radius * radius {
+                        continue;
+                    }
                     let x = px + dx;
                     let y = py + dy;
                     if x >= 0 && x < w && y >= 0 && y < h {
