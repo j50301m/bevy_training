@@ -51,7 +51,7 @@ fn main() {
             _pad: Vec2::ZERO,
         })
         .add_systems(Startup, setup)
-        .add_systems(Update, (handle_keys, accumulate_phase,update_materials))
+        .add_systems(Update, (handle_keys, accumulate_phase, update_materials))
         .add_systems(Update, update_ui)
         .run();
 }
@@ -131,16 +131,6 @@ fn handle_keys(
     } else if input.just_pressed(KeyCode::KeyR) {
         params.speed = 1.0;
     }
-
-    // for (_, mat) in materials.iter_mut() {
-    //     let mut speed = mat.params.speed;
-    //     if input.just_pressed(KeyCode::ArrowUp) {
-    //         speed += 0.1;
-    //     } else if input.just_pressed(KeyCode::ArrowDown) {
-    //         speed -= 0.1;
-    //     }
-    //     mat.params.speed = speed.clamp(0.1, 5.0);
-    // }
 }
 
 fn accumulate_phase(
@@ -152,16 +142,6 @@ fn accumulate_phase(
 
     // Accumulate the phase based on the time delta
     params.phase += dt * params.speed;
-
-    // // Ensure the phase stays within [0, 2π]
-    // for (_, mat) in materials.iter_mut() {
-    //     mat.params.phase += dt * mat.params.speed;
-
-    //     // Ensure the phase stays within [0, 2π]
-    //     if mat.params.phase > std::f32::consts::TAU {
-    //         mat.params.phase -= std::f32::consts::TAU;
-    //     }
-    // }
 }
 
 fn update_ui(
@@ -172,12 +152,11 @@ fn update_ui(
     *writer.text(*ui_root, 0) = format!("Speed: {:.1}, Phase: {:.2}", parms.speed, parms.phase);
 }
 
-
 fn update_materials(
     params: Res<Params>,
     mut oklab_mat: ResMut<Assets<OklabMaterial>>,
     mut normal_mat: ResMut<Assets<NormalMaterial>>,
-){
+) {
     for (_, mat) in oklab_mat.iter_mut() {
         mat.params = *params;
     }
