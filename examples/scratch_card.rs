@@ -9,7 +9,6 @@ use bevy::{
     window::PrimaryWindow,
 };
 
-
 const BRUSH_RADIUS: i32 = 20;
 
 #[derive(Asset, AsBindGroup, TypePath, Debug, Clone)]
@@ -67,11 +66,11 @@ fn setup(
     // Load static assets
     let reveal = asset_server.load("images/prize.png");
     let star = asset_server.load("images/star_pattern.png");
-    
+
     // Create initial black mask (0 = show cover layer star pattern)
     let initial_mask_data = vec![0u8; 512 * 512];
     let initial_mask = images.add(create_mask_image(&initial_mask_data, 512));
-    
+
     // Store resource information
     commands.insert_resource(ScratchResources {
         reveal_texture: reveal.clone(),
@@ -100,7 +99,6 @@ fn setup(
 /// Component to mark the scratch card quad
 #[derive(Component)]
 struct ScratchQuad;
-
 
 /// Handle mouse input and update material
 fn handle_mouse_input(
@@ -132,16 +130,15 @@ fn handle_mouse_input(
     if let Ok(world) = camera.viewport_to_world(cam_tf, cursor_pos) {
         let pos = world.origin.truncate();
         let uv = (pos + Vec2::splat(256.0)) / 512.0;
-        
+
         if uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0 {
             // Update mask data
             let size = scratch_res.size as i32;
             let px = (uv.x * size as f32) as i32;
             let py = ((1.0 - uv.y) * size as f32) as i32;
-            
 
             let mut changed = false;
-            
+
             for dy in -BRUSH_RADIUS..=BRUSH_RADIUS {
                 for dx in -BRUSH_RADIUS..=BRUSH_RADIUS {
                     if dx * dx + dy * dy > BRUSH_RADIUS * BRUSH_RADIUS {
@@ -158,20 +155,21 @@ fn handle_mouse_input(
                     }
                 }
             }
-            
+
             if changed {
                 // println!("Updating mask at UV: {:?}", uv); // Optional debug output
-                
+
                 // Create new mask image
-                let new_mask = images.add(create_mask_image(&scratch_res.mask_data, scratch_res.size));
-                
+                let new_mask =
+                    images.add(create_mask_image(&scratch_res.mask_data, scratch_res.size));
+
                 // Create new material
                 let new_material = materials.add(ScratchCardMaterial {
                     reveal_texture: scratch_res.reveal_texture.clone(),
                     scratch_mask: new_mask,
                     cover_layer: scratch_res.cover_texture.clone(),
                 });
-                
+
                 // Update quad's material
                 if let Ok(mut material_handle) = quad_query.single_mut() {
                     material_handle.0 = new_material;
@@ -194,7 +192,7 @@ fn create_mask_image(data: &[u8], size: u32) -> Image {
         TextureFormat::R8Unorm,
         RenderAssetUsages::all(),
     );
-    
+
     img.texture_descriptor.usage = TextureUsages::TEXTURE_BINDING | TextureUsages::COPY_DST;
     img.sampler = ImageSampler::nearest();
     img

@@ -38,10 +38,7 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(LoadingImage {
         is_loaded: false,
         handle: asset_server.load("images/ferris.png"),
@@ -102,26 +99,26 @@ fn setup_texture(
     }
 }
 
-
 fn animate(
     time: Res<Time>,
     mut transforms: Query<(&mut Transform, &MeshTag)>,
     loading_image: Res<LoadingImage>,
 ) {
-    if !loading_image.is_loaded  {
+    if !loading_image.is_loaded {
         return;
     }
 
     let time_secs = time.elapsed_secs();
 
-    for (mut transform,_mesh_tag) in transforms.iter_mut() {
+    for (mut transform, _mesh_tag) in transforms.iter_mut() {
         // Wave effect parameters
-        let wave_amplitude = 1.0;  // Wave amplitude
-        let wave_frequency = 2.0;  // Wave frequency
-        let wave_speed = 2.0;      // Wave speed
+        let wave_amplitude = 1.0; // Wave amplitude
+        let wave_frequency = 2.0; // Wave frequency
+        let wave_speed = 2.0; // Wave speed
 
         // Create wave effect - based on X position and time
-        let wave_offset = (transform.translation.x * wave_frequency + time_secs * wave_speed).sin() * wave_amplitude;
+        let wave_offset = (transform.translation.x * wave_frequency + time_secs * wave_speed).sin()
+            * wave_amplitude;
 
         // Apply wave to Z axis (depth)
         transform.translation.z = (wave_offset).sin() * wave_amplitude;
@@ -131,4 +128,3 @@ fn animate(
         transform.rotation = Quat::from_rotation_z(rotation_angle);
     }
 }
-
