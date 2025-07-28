@@ -28,6 +28,10 @@ fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
     let out_rgb = mix(cover_color.rgb, reveal_color.rgb, mask_value);
     // 如果想要跟著 mask_value 改變透明度，就把下行改成 mask_value
     let out_a   = 1.0;
-
+    
+    // 調試：直接顯示遮罩值作為灰階
+    // return vec4<f32>(mask_value, mask_value, mask_value, 1.0);
+    
+    // 正常渲染
     return vec4<f32>(out_rgb, out_a);
 }
