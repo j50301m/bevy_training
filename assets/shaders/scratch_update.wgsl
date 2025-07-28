@@ -1,4 +1,4 @@
-// 計算著色器用於更新刮刮卡遮罩
+// Compute shader for updating scratch card mask
 @group(0) @binding(0) var mask_texture: texture_storage_2d<r8unorm, read_write>;
 
 struct PaintData {
@@ -14,17 +14,17 @@ fn update_mask(@builtin(global_invocation_id) global_id: vec3<u32>) {
     let tex_size = textureDimensions(mask_texture);
     let coords = global_id.xy;
     
-    // 檢查是否在紋理範圍內
+    // Check if within texture bounds
     if (coords.x >= tex_size.x || coords.y >= tex_size.y) {
         return;
     }
     
-    // 計算當前像素到畫筆中心的距離
+    // Calculate distance from current pixel to brush center
     let pixel_pos = vec2<f32>(coords);
     let paint_pos = paint_data.position * vec2<f32>(tex_size);
     let distance = length(pixel_pos - paint_pos);
     
-    // 如果在畫筆半徑內，更新遮罩值
+    // If within brush radius, update mask value
     if (distance <= paint_data.radius) {
         let current_value = textureLoad(mask_texture, coords).r;
         let new_value = max(current_value, paint_data.paint_value);
