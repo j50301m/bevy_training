@@ -49,7 +49,7 @@ fn setup_layout_demo(mut commands: Commands) {
                     BackgroundColor(Color::srgb(0.3, 0.5, 0.3)),
                 )).with_children(|button| {
                     button.spawn((
-                        Text::new(format!("Button{}", i)),
+                        Text::new(format!("Button{i}")),
                         TextFont {
                             font_size: 16.0,
                             ..default()

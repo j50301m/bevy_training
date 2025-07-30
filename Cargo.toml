@@ -38,13 +38,4 @@ description = "A scratch card demo using CPU-based mask updates."
 category = "2D Rendering"
 wasm = true
 
-[[example]]
-name = "scratch_card_plus"
-path = "examples/scratch_card_plus.rs"
-
-[package.metadata.example.scratch_card_plus]
-name = "Scratch Card Plus Example"
-description = "An advanced scratch card demo using GPU compute shaders for mask updates."
-category = "2D Rendering"
-wasm = false
 

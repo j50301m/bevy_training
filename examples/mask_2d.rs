@@ -44,7 +44,7 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    commands.spawn(Camera2d::default());
+    commands.spawn(Camera2d);
 
     let main_tex = asset_server.load("images/main.png");
     let mask_tex = asset_server.load("images/mask.png");

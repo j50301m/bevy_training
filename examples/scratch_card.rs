@@ -87,7 +87,7 @@ fn setup(
     });
 
     // Scene setup
-    commands.spawn(Camera2d::default());
+    commands.spawn(Camera2d);
     commands.spawn((
         Mesh2d(meshes.add(Rectangle::from_size(Vec2::splat(512.0)))),
         MeshMaterial2d(material),
